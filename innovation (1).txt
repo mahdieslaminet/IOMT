@@ -1,0 +1,69 @@
+
+/* const */ 
+const exp: Function;
+const hash: Function; 
+const XOR: Function; 
+const PQ_Encrypt: Function; 
+const PQ_Decrypt: Function; 
+const h1: Function; 
+const plus: Function; 
+const mod: Function; 
+
+hashfunction h;
+
+ /* protocol */ 
+protocol AuthorizedLogin(U, CS) { 
+      role U { 
+        const IDi, Pu, Bu, SIDj, k, s, b, g, p, IDu, l: fresh; 
+        N1: Nonce; 
+        var N2: Nonce; 
+        const PQ_Key: Key; // کلید مشترک برای رمزنگاری پساکوانتومی
+
+  /* macros */ 
+macro b = h(b); 
+macro k = mod(exp(g, b), p); 
+macro PIj = h(XOR(XOR(h(IDi), h(h(Di, h(si))), plus(h(N2), 1)), h(IDi, k))); 
+macro Llj = XOR(h(N2), h(IDu, k));
+
+ /* communications */ 
+send_1(U, CS,  PQ_Encrypt(XOR(h(SIDi, N1), h(IDu)), PQ_Key), N1); // C1
+recv_2(CS, U, PQ_Decrypt(XOR(h(N2), h(N1, 1)), PQ_Key)); // C2
+send_3(U, CS, PQ_Encrypt(h(XOR(XOR(h(IDu), h(h(IDu), h(s))), plus(h(N2), 1)), h(IDu, k)), PQ_Key)); // PIj 
+send_4(U, CS, PQ_Encrypt(Llj, PQ_Key)); 
+
+/* claims */ 
+claim_i1(U, Secret, XOR(h(SIDj, N1), h(IDu))); // C1 
+claim_i2(U, Secret, XOR(h(N2), h(N1, 1))); // C2 
+claim_i3(U, Secret, h(XOR(XOR(h(IDu), h(h(IDu), h(s))), plus(h(N2), 1)), h(IDu, k))); // PIj 
+claim_i4(U, Secret, h(s)); claim_i10(U, Secret, k); 
+claim_i11(U, Secret, h(IDu)); 
+claim_i12(U, Secret, N1); 
+claim_i5(U, Secret, h(N2)); 
+claim_i13(U, Secret, Lij); 
+claim_i8(U, Alive); 
+claim_i9(U, Weakagree); 
+claim_i10(U, Commit, CS, N1, N2); 
+}
+ 
+role CS { 
+const IDi, Pi, N2, Bi, SIDj, k, s, b, g, p, I, IDu; 
+var N1: Nonce; 
+fresh N2: Nonce; 
+const PQ_Key: Key; // کلید مشترک برای رمزنگاری پساکوانتومی
+
+ /* communications */ 
+recv_1(U, CS,  PQ_Encrypt(XOR(h(SIDj, N1), h(IDu)), PQ_Key), N1); // C1
+send_2(CS, U, PQ_Decrypt(XOR(h(N2), h(N1, 1)), PQ_Key)); // C2
+recv_3(U, CS,  PQ_Encrypt(h(XOR(XOR(h(IDu), h(h(IDu), h(s))), plus(h(N2), 1)), h(IDu, k)), PQ_Key)); // PIj
+recv_4(U, CS, PQ_Encrypt(Lij, PQ_Key)); 
+
+/* claims */ 
+claim_r13(CS, Secret, Lij); 
+claim_r1(CS, Secret, XOR(h(SIDj, N1), h(IDi))); // C1 
+claim_r2(CS, Secret, XOR(h(N2), h(N1, 1))); // C2 
+claim_r3(CS, Secret, h(XOR(XOR(h(IDi), h(h(IDi), h(s))), plus(h(N2), 1)), h(IDi, k))); // PIj claim_r4(CS, Secret, h(s)); 
+claim_r10(CS, Secret, k); 
+claim_r4(CS, Secret, h(IDi)); 
+claim_r9(CS, Weakagree);
+ }
+ }
